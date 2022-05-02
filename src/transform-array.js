@@ -13,19 +13,41 @@ const { NotImplementedError } = require('../extensions/index.js');
  * transform([1, 2, 3, '--discard-prev', 4, 5]) => [1, 2, 4, 5]
  * 
  */
-function transform(arr) {
-  if(!Array.isArray(arr)) throw Error("'arr' parameter must be an instance of the Array!");
-  let res = [];
-  arr.map((value, index, elem) => {
-      if(typeof value != "string") res.push(elem[index]);
-        if(value == "--double-next") res.push(elem[index + 1]);
-        if(value == "--double-prev") res.push(elem[index - 1]);
-        if(value == "--discard-prev") res.pop(elem[index - 1]);
-        if(value == "--discard-next") res.pop(index);
-  });
-  return res.filter(e => typeof e != "undefined")
-}
+ var lohs = [
+  `--discard-next`,
+  `--discard-prev`,
+  `--double-next`,
+  `--double-prev`,
+]
+var transform = (arr) => {
+  if (!Array.isArray(arr)) throw new Error("'arr' parameter must be an instance of the Array!")
 
+  var res = [];
+  var isDisc = false;
+
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === '--discard-next') {
+
+      i += 2;
+      isDisc = true;
+
+    } else if (arr[i] === '--double-prev' && !isDisc && res[res.length - 1]) {
+      res.push(res[res.length - 1]);
+      continue;
+    }
+    else if (arr[i] === '--discard-prev') !isDisc && res.pop();
+    else if (arr[i] === '--double-next') arr[i + 1] && res.push(arr[i + 1])
+    else if (!lohs.includes(arr[i])) {
+      res.push(arr[i]);
+    }
+
+
+    isDisc =  false;
+
+  }
+
+  return res;
+}
 module.exports = {
   transform
 };
